@@ -15,18 +15,20 @@ This project automates the process of calculating the **Factor of Safety (FOS)**
 
 ## Overview
 
-The project consists of a single Python function, `calculate_fos`, which takes a STEP file and material properties as input and returns the Factor of Safety (FOS). The function performs the following steps:
+The project consists of two Python functions, `create_two_plate_assembly`, which builds a STEP file of two overlapping plates with holes and can be customized to different plate and hole dimensions. This STEP file along with material properties as input to `calculate_fos` function which returns the Factor of Safety (FOS) along with stress and displacement plots. The functions performs the following steps:
 
-1. **Mesh Generation**: Uses GMSH to generate a 3D mesh from the STEP file.
-2. **Mesh Conversion**: Converts the GMSH mesh into XDMF format for use in FEniCS.
-3. **Finite Element Analysis**: Solves the mechanical problem using FEniCS to compute stresses.
-4. **FOS Calculation**: Computes the von Mises stress and calculates the Factor of Safety (FOS) based on the yield stress.
+1. **Parametric 3D Model Generation**: Uses build123d to generate a 3D model from parametric data.
+2. **Mesh Generation**: Uses GMSH to generate a 3D mesh from the STEP file.
+3. **Mesh Conversion**: Converts the GMSH mesh into XDMF format for use in FEniCS.
+4. **Finite Element Analysis**: Solves the mechanical problem using FEniCS to compute stresses and diplacements.
+5. **FOS Calculation**: Computes the von Mises stress and calculates the Factor of Safety (FOS) based on the yield stress.
 
 ---
 
 ## Dependencies
 
 The code relies on the following Python libraries:
+- **build123d**: For 3D Model generation. 
 - **FEniCS**: For finite element analysis.
 - **GMSH**: For mesh generation.
 - **meshio**: For converting GMSH mesh files to XDMF format.
@@ -36,7 +38,7 @@ Make sure you have the following installed:
 - FEniCS (install via [FEniCS documentation](https://fenicsproject.org/download/))
 - GMSH (install via [GMSH documentation](https://gmsh.info/doc/texinfo/gmsh.html))
 - `meshio` (install via `pip install meshio`)
-
+- `build123d` (install via `pip install build123d`)
 ---
 
 ## Inputs
