@@ -1,0 +1,39 @@
+﻿# environments.yml
+# Combined setup for CAD and FEA workflows.
+# Create each environment separately using:
+#   conda env create -f environments.yml --name cad_tool
+#   conda env create -f environments.yml --name fea_tool
+
+environments:
+  # =======================
+  # CAD ENVIRONMENT
+  # =======================
+  cad_tool:
+    channels:
+      - conda-forge
+    dependencies:
+      - python=3.10.16
+      - numpy
+      - scipy
+      - matplotlib
+      - pip
+      - pip:
+          - build123d
+          - pyyaml
+
+  # =======================
+  # FEA ENVIRONMENT
+  # =======================
+  fea_tool:
+    channels:
+      - conda-forge
+    dependencies:
+      - python=3.10
+      - fenics           # Classic FEniCS; only works in Linux/WSL
+      - meshio
+      - numpy
+      - scipy
+      - matplotlib
+      - pip
+      - pip:
+          - gmsh         # Gmsh installed via pip for Windows compatibility
