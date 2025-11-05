@@ -1,0 +1,13 @@
+﻿name: fea_tool
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - fenics
+  - meshio
+  - numpy
+  - scipy
+  - matplotlib
+  - pip
+  - pip:
+      - gmsh
