@@ -13,3 +13,4 @@ dependencies:
       - gmsh # gmsh Python API — available via pip for Windows and Linux
       - build123d
       - pyyaml
+      - pytest
