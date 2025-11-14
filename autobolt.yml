@@ -1,4 +1,4 @@
-﻿name: fea_tool
+name: autobolt
 channels:
   - conda-forge
 dependencies:
@@ -11,3 +11,5 @@ dependencies:
   - pip
   - pip:
       - gmsh # gmsh Python API — available via pip for Windows and Linux
+      - build123d
+      - pyyaml
