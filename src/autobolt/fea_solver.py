@@ -2,12 +2,12 @@
 import gmsh
 import meshio
 
+
 def calculate_fos(step_file, E, nu, yield_strength, traction_values):
-    
-    
-    msh_file = "mesh_merged.msh"
-    xdmf_file_mesh = "mesh.xdmf"
-    xdmf_file_surface_tags = "surface_tags.xdmf"
+
+    msh_file = "../../mesh_merged.msh"
+    xdmf_file_mesh = "../../mesh.xdmf"
+    xdmf_file_surface_tags = "../../surface_tags.xdmf"
 
     # Initialize GMSH
     gmsh.initialize()
@@ -46,7 +46,7 @@ def calculate_fos(step_file, E, nu, yield_strength, traction_values):
             for tag, ymin, ymax in surface_info
             if abs(ymax - ymin) < tol and abs(ymin - target_y) < tol
         )
-    
+
     # Identify min Y and max Y surfaces
     trac_pos_tag = y_face(surface_info, global_ymin)
     trac_neg_tag = y_face(surface_info, global_ymax)
@@ -69,12 +69,16 @@ def calculate_fos(step_file, E, nu, yield_strength, traction_values):
     # Read the .msh file using meshio
     msh = meshio.read(msh_file)
 
-    # Utility function to extract specific cell types 
+    # Utility function to extract specific cell types
     def create_mesh(mesh, cell_type, prune_z=False):
         cells = mesh.get_cells_type(cell_type)
         cell_data = mesh.get_cell_data("gmsh:physical", cell_type)
         points = mesh.points[:, :2] if prune_z else mesh.points
-        out_mesh = meshio.Mesh(points=points, cells={cell_type: cells}, cell_data={"name_to_read": [cell_data]})
+        out_mesh = meshio.Mesh(
+            points=points,
+            cells={cell_type: cells},
+            cell_data={"name_to_read": [cell_data]},
+        )
         return out_mesh
 
     # Write the volumetric mesh (tetrahedrons) to mesh.xdmf
@@ -86,7 +90,7 @@ def calculate_fos(step_file, E, nu, yield_strength, traction_values):
     meshio.write(xdmf_file_surface_tags, triangle_mesh)
 
     # Step 2: FEniCS Simulation
-    
+
     # Load the mesh
     mesh = Mesh()
     with XDMFFile(xdmf_file_mesh) as infile:
@@ -129,35 +133,36 @@ def calculate_fos(step_file, E, nu, yield_strength, traction_values):
     # Add traction forces for each specified surface
     for tag, traction in zip(traction_tags, traction_values):
         L += dot(Constant(traction), v) * ds(tag)
-    
+
     # Solve the problem
     u = Function(V)
     solve(a == L, u, bcs)
 
-    pvd_file_solution = "displacement.pvd"
+    pvd_file_solution = "../../displacement.pvd"
     File(pvd_file_solution) << u
 
     # Compute von Mises stress
     s = sigma(u) - (1.0 / 3) * tr(sigma(u)) * Identity(3)
     von_Mises = project(sqrt(3.0 / 2.0 * inner(s, s)), W, solver_type="cg")
 
-    pvd_file_solution = "stress.pvd"
+    pvd_file_solution = "../../stress.pvd"
     File(pvd_file_solution) << von_Mises
 
     # Compute maximum von Mises stress
     max_stress = von_Mises.vector().max()
 
     # Compute Factor of Safety (FOS)
-    FOS =  yield_strength/max_stress
+    FOS = yield_strength / max_stress
 
     return FOS
 
+
 # Input parameters
-step_file = "/home/sriyan/CAD_2plates.step"
+step_file = "../../CAD_2plates.step"
 E = 210e9
 nu = 0.3
 yield_strength = 200e6
-traction_values = [(0,-1e6,0)] 
+traction_values = [(0, -1e6, 0)]
 
 # Calculate FOS
 FOS = calculate_fos(step_file, E, nu, yield_strength, traction_values)

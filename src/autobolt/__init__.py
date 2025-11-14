@@ -1,0 +1,2 @@
+from parametric_cad_solver import create_two_plate_assembly
+from fea_solver import calculate_fos
