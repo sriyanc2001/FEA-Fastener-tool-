@@ -81,18 +81,3 @@ def create_two_plate_assembly(
     # 5) Export
     export_step(assembly, output_filename)
     return assembly
-
-
-# Example usage:
-assembly = create_two_plate_assembly(
-    plate_length_m=0.200,  # [m] length of each plate (along X)
-    plate_width_m=0.100,  # [m] width of each plate (along Y)
-    plate_thickness_m=0.010,  # [m] thickness of each plate (along Z)
-    num_holes=4,  # number of bolt holes per plate
-    hole_radius_m=0.010,  # [m] radius of bolt/hole
-    edge_margin_m=0.05387,  # [m]distance from right plate edge to first hole center
-    hole_spacing_m=0.035,  # [m] spacing between consecutive holes (X direction)
-    hole_offset_from_bottom_m=0.020,  # [m] vertical position of hole centers (Y from bottom edge)
-    plate_gap_mm=0.01,  # [mm] gap between the two plates
-    output_filename="../../CAD_2plates.step",  # STEP file output name
-)

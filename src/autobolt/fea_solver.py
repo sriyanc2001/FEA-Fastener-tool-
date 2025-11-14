@@ -155,15 +155,3 @@ def calculate_fos(step_file, E, nu, yield_strength, traction_values):
     FOS = yield_strength / max_stress
 
     return FOS
-
-
-# Input parameters
-step_file = "../../CAD_2plates.step"
-E = 210e9
-nu = 0.3
-yield_strength = 200e6
-traction_values = [(0, -1e6, 0)]
-
-# Calculate FOS
-FOS = calculate_fos(step_file, E, nu, yield_strength, traction_values)
-print(f"Factor of Safety (FOS): {FOS}")
