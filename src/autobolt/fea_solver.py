@@ -6,10 +6,10 @@ import gmsh
 import meshio
 
 
-def calculate_fos_from_build123d(
+def _calculate_fos_from_build123d(
     build123d_object: build123d.Shape,
-    E: float,
-    nu: float,
+    elastic_modulus: float,
+    poissons_ratio: float,
     yield_strength: float,
     traction_values: list[tuple],
 ):
@@ -18,8 +18,8 @@ def calculate_fos_from_build123d(
 
     Parameters:
         build123d_object (build123d.Shape): The Build123d object representing the geometry
-        E (float): Young's modulus of the material.
-        nu (float): Poisson's ratio of the material.
+        elastic_modulus (float): Young's modulus of the material.
+        poissons_ratio (float): Poisson's ratio of the material.
         yield_strength (float): Yield strength of the material.
         traction_values (list[tuple]): List of traction force vectors to apply on specified surfaces.
 
@@ -140,8 +140,12 @@ def calculate_fos_from_build123d(
     ]
 
     # Define material properties
-    mu = E / (2.0 * (1.0 + nu))  # Shear modulus
-    lmbda = E * nu / ((1.0 + nu) * (1.0 - 2.0 * nu))  # First Lamé parameter
+    mu = elastic_modulus / (2.0 * (1.0 + poissons_ratio))  # Shear modulus
+    lmbda = (
+        elastic_modulus
+        * poissons_ratio
+        / ((1.0 + poissons_ratio) * (1.0 - 2.0 * poissons_ratio))
+    )  # First Lamé parameter
 
     # Define strain and stress
     def epsilon(u):

@@ -18,10 +18,10 @@ def test_two_function_workflow():
 
     print(assembly)
 
-    fos = autobolt.calculate_fos_from_build123d(
+    fos = autobolt._calculate_fos_from_build123d(
         build123d_object=assembly,
-        E=210e9,  # [Pa] Young's modulus for steel
-        nu=0.3,  # Poisson's ratio for steel
+        elastic_modulus=210e9,  # [Pa] Young's modulus for steel
+        poissons_ratio=0.3,  # Poisson's ratio for steel
         yield_strength=200e6,  # [Pa] Yield strength for steel
         traction_values=[(0, -1e6, 0)],  # [Pa] Applied
     )
@@ -42,8 +42,8 @@ def test_one_function_workflow():
         hole_spacing_m=0.035,  # [m] spacing between consecutive holes (X direction)
         hole_offset_from_bottom_m=0.020,  # [m] vertical position of hole centers (Y from bottom edge)
         plate_gap_mm=0.01,  # [mm] gap between the two plates
-        E=210e9,  # [Pa] Young's modulus for steel
-        nu=0.3,  # Poisson's ratio for steel
+        elastic_modulus=210e9,  # [Pa] Young's modulus for steel
+        poissons_ratio=0.3,  # Poisson's ratio for steel
         yield_strength=200e6,  # [Pa] Yield strength for steel
         traction_values=[(0, -1e6, 0)],  # [Pa] Applied
     )
