@@ -11,7 +11,6 @@
     Plane,
     mirror,
     Align,
-    export_step,
 )
 
 
@@ -25,7 +24,6 @@ def create_two_plate_assembly(
     hole_spacing_m: float,
     hole_offset_from_bottom_m: float,
     plate_gap_mm: float,
-    output_filename: str,
 ):
     # convert the gap to meters
     gap_m = plate_gap_mm * 1e-4
@@ -75,9 +73,6 @@ def create_two_plate_assembly(
                 )
     bolt_cylinders = bp2.part
 
-    # 4) Assemble
+    # 4) Assemble and return
     assembly = Compound(children=[plateA, plateB, bolt_cylinders])
-
-    # 5) Export
-    export_step(assembly, output_filename)
     return assembly

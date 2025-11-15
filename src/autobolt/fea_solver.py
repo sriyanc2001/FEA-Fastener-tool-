@@ -1,13 +1,30 @@
-﻿from fenics import *
+﻿import tempfile
+
+import build123d
 import gmsh
 import meshio
+from build123d import export_step
+from fenics import *
 
 
-def calculate_fos(step_file, E, nu, yield_strength, traction_values):
+def calculate_fos_from_build123d(
+    build123d_object: build123d.Shape,
+    E: float,
+    nu: float,
+    yield_strength: float,
+    traction_values: list[tuple],
+):
 
-    msh_file = "../../mesh_merged.msh"
-    xdmf_file_mesh = "../../mesh.xdmf"
-    xdmf_file_surface_tags = "../../surface_tags.xdmf"
+    # Make a temporary directory using tempfile
+    tempdir = tempfile.TemporaryDirectory()
+
+    # Save the step file to the temporary directory
+    step_file = tempdir.name + "/model.step"
+    export_step(build123d_object, step_file)
+
+    msh_file = tempdir.name + "/mesh_merged.msh"
+    xdmf_file_mesh = tempdir.name + "/mesh.xdmf"
+    xdmf_file_surface_tags = tempdir.name + "surface_tags.xdmf"
 
     # Initialize GMSH
     gmsh.initialize()
