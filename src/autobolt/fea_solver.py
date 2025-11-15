@@ -1,10 +1,9 @@
 ﻿import tempfile
 
 import build123d
+import fenics
 import gmsh
 import meshio
-from build123d import export_step
-from fenics import *
 
 
 def calculate_fos_from_build123d(
@@ -14,13 +13,26 @@ def calculate_fos_from_build123d(
     yield_strength: float,
     traction_values: list[tuple],
 ):
+    """
+    Calculate the Factor of Safety (FOS) for a given Build123d object using FEniCS.
+
+    Parameters:
+        build123d_object (build123d.Shape): The Build123d object representing the geometry
+        E (float): Young's modulus of the material.
+        nu (float): Poisson's ratio of the material.
+        yield_strength (float): Yield strength of the material.
+        traction_values (list[tuple]): List of traction force vectors to apply on specified surfaces.
+
+    Returns:
+        float: The calculated Factor of Safety (FOS).
+    """
 
     # Make a temporary directory using tempfile
     tempdir = tempfile.TemporaryDirectory()
 
     # Save the step file to the temporary directory
     step_file = tempdir.name + "/model.step"
-    export_step(build123d_object, step_file)
+    build123d.export_step(build123d_object, step_file)
 
     msh_file = tempdir.name + "/mesh_merged.msh"
     xdmf_file_mesh = tempdir.name + "/mesh.xdmf"
@@ -107,24 +119,25 @@ def calculate_fos_from_build123d(
     meshio.write(xdmf_file_surface_tags, triangle_mesh)
 
     # Step 2: FEniCS Simulation
-
-    # Load the mesh
-    mesh = Mesh()
-    with XDMFFile(xdmf_file_mesh) as infile:
+    mesh = fenics.cpp.mesh.Mesh()
+    with fenics.cpp.io.XDMFFile(xdmf_file_mesh) as infile:
         infile.read(mesh)
 
     # Load the surface tags in FEniCS
-    mvc = MeshValueCollection("size_t", mesh, 2)
-    with XDMFFile(xdmf_file_surface_tags) as infile:
+    mvc = fenics.MeshValueCollection("size_t", mesh, 2)
+    with fenics.cpp.io.XDMFFile(xdmf_file_surface_tags) as infile:
         infile.read(mvc, "name_to_read")
-    mf = cpp.mesh.MeshFunctionSizet(mesh, mvc)
+    mf = fenics.cpp.mesh.MeshFunctionSizet(mesh, mvc)
 
     # Define function space for displacement
-    V = VectorFunctionSpace(mesh, "CG", 2)
-    W = FunctionSpace(mesh, "CG", 2)
+    V = fenics.VectorFunctionSpace(mesh, "CG", 2)
+    W = fenics.FunctionSpace(mesh, "CG", 2)
 
     # Define boundary conditions
-    bcs = [DirichletBC(V, Constant((0.0, 0.0, 0.0)), mf, tag) for tag in zero_disp_tags]
+    bcs = [
+        fenics.DirichletBC(V, fenics.Constant((0.0, 0.0, 0.0)), mf, tag)
+        for tag in zero_disp_tags
+    ]
 
     # Define material properties
     mu = E / (2.0 * (1.0 + nu))  # Shear modulus
@@ -132,38 +145,42 @@ def calculate_fos_from_build123d(
 
     # Define strain and stress
     def epsilon(u):
-        return 0.5 * (grad(u) + grad(u).T)
+        return 0.5 * (fenics.grad(u) + fenics.grad(u).T)
 
     def sigma(u):
-        return 2.0 * mu * epsilon(u) + lmbda * tr(epsilon(u)) * Identity(3)
+        return 2.0 * mu * epsilon(u) + lmbda * fenics.tr(epsilon(u)) * fenics.Identity(
+            3
+        )
 
     # Define variational problem
-    u = TrialFunction(V)
-    v = TestFunction(V)
-    f = Constant((0.0, 0.0, 0.0))  # Body force (assumed zero)
+    u = fenics.TrialFunction(V)
+    v = fenics.TestFunction(V)
+    f = fenics.Constant((0.0, 0.0, 0.0))  # Body force (assumed zero)
 
     # Weak form
-    a = inner(sigma(u), epsilon(v)) * dx
-    ds = Measure("ds", domain=mesh, subdomain_data=mf)
-    L = dot(f, v) * dx  # Start with body force term
+    a = fenics.inner(sigma(u), epsilon(v)) * fenics.dx
+    ds = fenics.Measure("ds", domain=mesh, subdomain_data=mf)
+    L = fenics.dot(f, v) * fenics.dx  # Start with body force term
 
     # Add traction forces for each specified surface
     for tag, traction in zip(traction_tags, traction_values):
-        L += dot(Constant(traction), v) * ds(tag)
+        L += fenics.dot(fenics.Constant(traction), v) * ds(tag)
 
     # Solve the problem
-    u = Function(V)
-    solve(a == L, u, bcs)
+    u = fenics.Function(V)
+    fenics.solve(a == L, u, bcs)
 
     pvd_file_solution = "../../displacement.pvd"
-    File(pvd_file_solution) << u
+    fenics.cpp.io.File(pvd_file_solution) << u
 
     # Compute von Mises stress
-    s = sigma(u) - (1.0 / 3) * tr(sigma(u)) * Identity(3)
-    von_Mises = project(sqrt(3.0 / 2.0 * inner(s, s)), W, solver_type="cg")
+    s = sigma(u) - (1.0 / 3) * fenics.tr(sigma(u)) * fenics.Identity(3)
+    von_Mises = fenics.project(
+        fenics.sqrt(3.0 / 2.0 * fenics.inner(s, s)), W, solver_type="cg"
+    )
 
     pvd_file_solution = "../../stress.pvd"
-    File(pvd_file_solution) << von_Mises
+    fenics.cpp.io.File(pvd_file_solution) << von_Mises
 
     # Compute maximum von Mises stress
     max_stress = von_Mises.vector().max()

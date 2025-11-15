@@ -58,7 +58,4 @@ Make sure you have the following installed:
 | Output            | Type    | Description                                                                 |
 |-------------------|---------|-----------------------------------------------------------------------------|
 | Return value      | float   | Computed Factor of Safety (FOS)                                            |
-| `mesh.xdmf`       | file    | FEniCS-compatible mesh file                                                |
-| `displacement.pvd`| file    | ParaView-readable displacement field                                       |
-| `stress.pvd`      | file    | ParaView-readable von Mises stress field                                   |
 
