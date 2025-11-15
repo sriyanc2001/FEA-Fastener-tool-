@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autobolt"
+version = "0.1.0"
+description = "Automatically analyze bolts"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name="Sriya"}, {name="Chris McComb", email="ccmcc2012@gmail.com"}]
+dependencies = [
+    "fenics",
+    "meshio",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "gmsh",
+    "build123d",
+    "pyyaml",
+]
+[project.optional-dependencies]
+test = [
+  "pytest",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
