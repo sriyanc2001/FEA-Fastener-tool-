@@ -17,7 +17,7 @@ jobs:
       - name: Install system OpenGL deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libglu1-mesa
+          sudo apt-get install -y  libgl1 libglu1-mesa
 
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v2
