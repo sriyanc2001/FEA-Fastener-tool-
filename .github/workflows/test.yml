@@ -1,0 +1,45 @@
+name: Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system OpenGL deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y  libgl1 libglu1-mesa
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: "3.10"
+          channels: conda-forge
+          environment-file: environment.yml
+          activate-environment: autobolt
+          auto-activate-base: false
+
+      - name: Install package and test deps
+        shell: bash -l {0}
+        run: |
+          conda activate autobolt
+          python -m pip install --upgrade pip
+          # optional if pytest is already in autobolt.yml; otherwise keep this:
+          python -m pip install pytest
+          pip install -e .
+
+      - name: Run tests
+        shell: bash -l {0}
+        run: |
+          conda activate autobolt
+          pytest
