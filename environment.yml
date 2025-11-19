@@ -5,11 +5,11 @@ dependencies:
   - python=3.10
   - fenics  # ⚠️ FEniCS (classic version) works ONLY on Linux and WSL — not native Windows
   - meshio  # Used for mesh I/O (convert .msh <-> .xdmf/.xml)
+  - gmsh     
   - numpy
   - scipy
   - matplotlib
   - pip
   - pip:
-      - gmsh # gmsh Python API — available via pip for Windows and Linux
       - build123d
       - pyyaml
